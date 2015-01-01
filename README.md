@@ -1,7 +1,4 @@
-scripts
+Book Tee Time
 =======
 
-Useful scripts
-
-1) Book tee time on BRS. High demand for places on Saturday timesheet, this autmoates the proccess so when timesheet goes live
-   my tee time is booked.
+Run using a rasbperry pi and cronjob, this script books a specified line as soon as a timesheet (Golf) goes live, giving you first choice of tee times as they can be in high demand and it is easy to forget to book it. Some error checking/redundancies to be added later.
