@@ -15,10 +15,10 @@ import sys
 import re
 
 GUI_NUMBER = '31711862'     #Only need that of the person booking line.
-PASSWORD = 'xxxxx'
-DATE_OF_COMP = '2015-01-10' # MUST follow this format YEAR-MONTH-DAY
-TIME_REQ = '09:44'          # MUST be a time in the competition or it will fail
-PLAYERS_IDS = ('766') # Each member has a unique id. Grep the players.txt file to find them.
+PASSWORD = 'wi11iams'
+DATE_OF_COMP = '2015-01-07' # MUST follow this format YEAR-MONTH-DAY
+TIME_REQ = '12:20'          # MUST be a time in the competition or it will fail
+PLAYERS_IDS = ['7'] # Each member has a unique id. Grep the players.txt file to find them.
                             # To book two players use: PLAYERS_IDS = ('xxx','xxx'), for three you
                             # can use PLAYERS_IDS = ('xxx','xxx', 'xxx') etc
 
@@ -66,14 +66,13 @@ for competition in soup.find_all('table', { "class" : "competition_booking_summa
                 form = avail_time.find('form')
                 
                 if form:
-                    match = re.search('<input name="unique_id" type="hidden" value="(.*)"/>', str(form.find('input', { "name" : "unique_id" })))
-                    unique_id = match.group(1)
-                    match = re.search('<input name="d_date" type="hidden" value="(.*)"/>', str(form.find('input', { "name" : "d_date" })))
-                    d_date = match.group(1)
-                
-                    mech.select_form(nr=8)
+                    unique_id = form.find('input', { "name" : "unique_id" })['value']
+                    d_date = form.find('input', { "name" : "d_date" })['value']
+                    
+                    mech.select_form(nr=1)
                     mech.form.set_all_readonly(False)
-                    mech['course_id'] = '1'
+
+                    mech['course_id'] = '1' # Never any 10th tee starts for medals
                     mech['unique_id'] = unique_id
                     mech['d_date'] = d_date
                     mech['Booking_Operation'] = 'Book Competition'
@@ -87,7 +86,11 @@ for competition in soup.find_all('table', { "class" : "competition_booking_summa
                     #Specify the players you are booking a line for using their unique ids.
                     player_num = 1
                     for user_id in PLAYERS_IDS:
-                        mech['Player'+str(player_num)+'_uid'] = [user_id]
+                        try:
+                            mech['Player'+str(player_num)+'_uid'] = [user_id]
+                        except:
+                            logging.error('Failed to book a tee time. Invalid id "'+str(user_id)+'" used.')
+                            sys.exit(1)
                         player_num += 1
             
                     mech['Booking_Operation'] = 'Confirm Competition Booking'
