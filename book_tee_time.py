@@ -15,10 +15,10 @@ import sys
 import re
 
 GUI_NUMBER = '31711862'     #Only need that of the person booking line.
-PASSWORD = 'wi11iams'
+PASSWORD = 'xxxxx'
 DATE_OF_COMP = '2015-01-07' # MUST follow this format YEAR-MONTH-DAY
 TIME_REQ = '12:20'          # MUST be a time in the competition or it will fail
-PLAYERS_IDS = ['7'] # Each member has a unique id. Grep the players.txt file to find them.
+PLAYERS_IDS = ['766']       # Each member has a unique id. Grep the players.txt file to find them.
                             # To book two players use: PLAYERS_IDS = ('xxx','xxx'), for three you
                             # can use PLAYERS_IDS = ('xxx','xxx', 'xxx') etc
 
