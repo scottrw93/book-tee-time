@@ -22,7 +22,7 @@ PLAYERS_IDS = ['766']       # Each member has a unique id. Grep the players.txt 
                             # To book two players use: PLAYERS_IDS = ('xxx','xxx'), for three you
                             # can use PLAYERS_IDS = ('xxx','xxx', 'xxx') etc
 
-#To find bugs if soemthing goes wrong.
+#To find bugs if soemthing goes wrong as it runs using a cronjob.
 logging.basicConfig(filename='book_tee_time.log', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
 loginPage = 'http://www.brsgolf.com/castle/members_booking.php?operation=member_info'
