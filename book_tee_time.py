@@ -49,7 +49,7 @@ for competition in soup.find_all('table', { "class" : "competition_booking_summa
     date = link.split('&')[2].split('=')[1] # Date of current comp to compare to date specified
     
     if date == DATE_OF_COMP:
-        link = 'http://www.brsgolf.com/castle/'+link
+        link = 'xxxx'+link
 
         booking_page = mech.open(link)
         soup = BeautifulSoup(booking_page)
