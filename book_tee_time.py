@@ -16,21 +16,26 @@ import time
 import sys
 import re
 
-DEFAULT_URL = 'http://www.brsgolf.com/castle'
 
-PLAYERS = dict()
-PLAYERS['Nicholas Armstrong']   = '12'
-PLAYERS['Eoghan McKeever']      = '469'
-PLAYERS['Peter McKeever']       = '471'
-PLAYERS['Ross McKeever']        = '1725'
-PLAYERS['Ben Murray']           = '1888'
-PLAYERS['Peter Murray']         = '530'
-PLAYERS['Ross Murray']          = '1751'
-PLAYERS['Harry Scott']          = '683'
-PLAYERS['John Williams']        = '764'
-PLAYERS['Paul Williams']        = '765'
-PLAYERS['Scott Williams']       = '766'
-PLAYERS['Stephen Williams']     = '1716'
+GOLF_CLUBS = {
+    'castle' : 'http://www.brsgolf.com/castle',
+    'portmarnock' : 'https://www.brsgolf.com/portmarnock'
+}
+
+PLAYERS = {
+    'Nicholas Armstrong' : '12',
+    'Eoghan McKeever' : '469',
+    'Peter McKeever' : '471',
+    'Ross McKeever' : '1725',
+    'Ben Murray' : '1888',
+    'Peter Murray' : '530',
+    'Ross Murray' : '1751',
+    'Harry Scott' : '683',
+    'John Williams' : '764',
+    'Paul Williams' : '765',
+    'Scott Williams' : '766',
+    'Stephen Williams' : '1716'
+}
 
 
 def _parse_date(link):
@@ -41,9 +46,11 @@ def _parse_date(link):
         competition_details[key] = value
     return competition_details['d_date']
 
+
 def _parse_competitions(soup):
     return map(lambda x: x.find('a')['href'], \
         soup.find_all('table', { "class" : "competition_booking_summary_table" }))
+
 
 def _parse_available_times(soup):
     tables = soup.find_all('table', { "class" : "table_white_text" })[0]
@@ -55,6 +62,7 @@ def _parse_available_times(soup):
             times[row.getText()] = table.find('form')
     return times
 
+
 def _wait_for_timesheet(TIME_SHEET_LIVE):
     current_time, imminent = dt.datetime.now().replace(microsecond=0), False
     while current_time < TIME_SHEET_LIVE:
@@ -63,14 +71,16 @@ def _wait_for_timesheet(TIME_SHEET_LIVE):
             time.sleep(abs((current_time - TIME_SHEET_LIVE).total_seconds()) - 10.0)
             imminent = True
 
-#To find bugs if soemthing goes wrong as it runs using a cronjob.
-def book_tee_time(GUI_NUMBER, PASSWORD, DATE_OF_COMP, TIME_REQ, PLAYER_NAMES, TIME_SHEET_LIVE=None, booking_page=DEFAULT_URL, players=PLAYERS):
+
+
+def book_tee_time(GUI_NUMBER, PASSWORD, DATE_OF_COMP, TIME_REQ, PLAYER_NAMES, TIME_SHEET_LIVE=None, golf_club='castle', players=PLAYERS):
+
+    player_ids = map(lambda n: players[n], PLAYER_NAMES)
+    booking_page = GOLF_CLUBS[golf_club]
 
     # Sleep until timesheet is live
     if TIME_SHEET_LIVE:
         _wait_for_timesheet(TIME_SHEET_LIVE)
-
-    player_ids = map(lambda n: players[n], PLAYER_NAMES)
 
     #Open login page
     mech = mechanize.Browser()
@@ -122,7 +132,8 @@ def book_tee_time(GUI_NUMBER, PASSWORD, DATE_OF_COMP, TIME_REQ, PLAYER_NAMES, TI
 
     print 'Booked tee-time' if mech.submit() else 'Failed to book tee time'
 
-book_tee_time('xxx', 'xxx', '2016-05-14', '15:40', ['Scott Williams'], TIME_SHEET_LIVE=dt.datetime(2016, 5, 12, 10, 0, 0))
+#                                      yyyy-mm-dd    hh:mm                                      Year, Month, Day, Hour, Minute, Second
+book_tee_time('311111111', 'xxx', '2017-01-25', '11:48', ['Scott Williams'], TIME_SHEET_LIVE=dt.datetime(2017, 1, 18, 19, 6, 0), golf_club='castle')
 
 
 
