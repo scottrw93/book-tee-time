@@ -6,46 +6,38 @@ import re
 
 USER_AGENT = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1"
 
-GOLF_CLUBS = {
-
-}
-
 PLAYERS = {
-
+    "Guest": "Guest",
 }
 
 
-def _wait_for_timesheet(TIME_SHEET_LIVE):
+def wait_until(time):
     current_time, imminent = dt.datetime.now().replace(microsecond=0), False
-    while current_time < TIME_SHEET_LIVE:
+    while current_time < time:
         current_time = dt.datetime.now().replace(microsecond=0)
         if not imminent:
-            time.sleep(abs((current_time - TIME_SHEET_LIVE).total_seconds()) - 10.0)
+            time.sleep(abs((current_time - time).total_seconds()) - 10.0)
             imminent = True
 
 
 def book_tee_time(
     gui_number,
     password,
-    date_of_comp,
-    time_required,
+    tee_time,
     player_names,
     time_sheet_live=None,
-    golf_club="castle",
     dry_run=False,
 ):
-    booking_page = GOLF_CLUBS[golf_club]
-
-    # Sleep until timesheet is live
+    # Sleep until 20 seconds before live, then login
     if time_sheet_live:
-        _wait_for_timesheet(time_sheet_live)
+        wait_until(time_sheet_live - dt.timedelta(seconds=20))
 
     # Open login page
     mech = mechanize.Browser()
     mech.set_handle_robots(False)
     mech.addheaders = [("User-agent", USER_AGENT)]
 
-    mech.open(booking_page + "/member/login")
+    mech.open("https://www.brsgolf.com/castle/member/login")
 
     # Login and get page of current competitions
     mech.select_form(nr=0)
@@ -53,14 +45,20 @@ def book_tee_time(
     mech["_password"] = password
     mech.submit()
 
+    # Wait for timesheet to go live
+    if time_sheet_live:
+        wait_until(time_sheet_live)
+
     # Parse competitions to find the correct date. Take the first result as even if there is
     # two comps on the same day they will have the same link
+    date_required = "{:%Y-%m-%d}".format(tee_time)
     for link in mech.links():
-        if date_of_comp in link.url:
+        if date_required in link.url:
             mech.follow_link(link)
             break
 
     # Find correct tee time to book
+    time_required = "{:%H:%M}".format(tee_time)
     for pos, form in enumerate(mech.forms()):
         for control in form.controls:
             if time_required in str(form):
@@ -81,9 +79,10 @@ def book_tee_time(
 
 
 book_tee_time(
-    "111",
-    "111",
-    "2021-06-21",
-    "18:40",
-    ["Scott"]
+    "xxx",
+    "xxx",
+    dt.datetime(2021, 6, 21, 18, 40, 0),
+    ["Guest"],
+    time_sheet_live=dt.datetime(2020, 11, 28, 17, 50, 0),
+    dry_run=True,
 )
